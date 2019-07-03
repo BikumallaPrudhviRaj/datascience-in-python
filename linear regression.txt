@@ -1,0 +1,71 @@
+import matplotlib.pyplot as pl
+import pandas as pd
+import numpy as np
+import pylab as pl
+%matplotlib inline
+
+!wget -O FuelConsumption.csv https://s3-api.us-geo.objectstorage.softlayer.net/cf-courses-data/CognitiveClass/ML0101ENv3/labs/FuelConsumptionCo2.csv
+(!wget is used to download the data)
+
+//reading the dataset
+df=pd.read_csv("Fuel_Consumption.csv")
+
+//to get the properties of datset
+df.describe()
+
+//now to select some of the features from excel of all
+cdf=df[['ENGINESIZE','CYLINDERS'.'FUELCONSUMPTION_COMB','CO2EMISSIONS']]
+cdf.head(9)
+
+//plotting each of them
+viz=cdf[['CYLINDERS','ENGINESIZE','CO2EMISSIONS','FUELCONSUMPTION_COMB']]
+viz.hist()
+plot.show()
+
+//linear relation between two features
+plt.scatter(cdf.FUELCONSUMPTION_COMB,cdf.CO2EMISSIONS,color='blue')
+plt.xlabel('Consumption')
+plt.ylabel('Emission')
+plt.show()
+
+------for simple regression model
+//training and testing seperation
+msk=np.random.rand(len(df)) <0.8
+train=cdf[msk]
+test=cdf[~msk]
+
+//train datas distribution
+plt.scatter(train.FUELCONSUMPTION_COMB,train.CO2EMISSIONS,color='blue')
+plt.xlabel('Consumption')
+plt.ylabel('Emission')
+plt.show()
+
+//modelling dataset
+from sklearn import linear_model
+regr=linear_model.LinearRegression()
+train_x=np.asanyarray(train[['FUELCONSUMPTION_COMB']])
+train_y=np.asanyarray(train[['CO2EMISSIONS']])
+regr.fit(train_x,train_y)
+
+print('Coefficients:',regr.coef_)
+print('Intercept:',regr.intercept_)
+
+//plot the outputs after linear regression
+plt.scatter(train.FUELCONSUMPTION_COMB,train.CO2EMISSIONS,color='blue')
+plt.plot(train_x,regr.coef_[0][0]*train_x+regr.intercept_[0],'-r')
+plt.xlabel('Consumption')
+plt.ylabel('Emission')
+
+
+//evaluation
+we compare the actual values and predicted values to calculate the accuracy of a regression model. Evaluation metrics provide a key role in the development of a model, as it provides insight to areas that require improvement.
+
+from sklearn.metrics import r2_score
+
+test_x=np.asanyarray(test[['FUELCONSUMPTION_COMB']])
+test_y=np.asanyarray(test[['CO2EMISSIONS']])
+test_y_ = regr.predict(test_x)
+
+print("mean absolute error %.2f" %np.mean(np.absolute(test_y_ - test_y)))
+print("Residual sum of squares (MSE): %.2f" %np.mean((test_y_-test_y)**2))
+print("R2-score: %.2f" %r2_score(test_y_, test_y))
